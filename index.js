@@ -44,7 +44,7 @@ Spider.extend({
     var request = utils.request;
     utils.charset(request);
     request
-      .get(this.options.site.host)
+      .get(this.options.site.host + '/Right.aspx')
       .set('User-Agent', this.options.site.headers['User-Agent'])
       .set('Cookie', this.options.site.headers.Cookie)
       .set('Host', this.options.site.headers.Host)
@@ -54,25 +54,35 @@ Spider.extend({
           console.log('Error:', err);
           return cb(err);
         }
-        //var $ = utils.$.load(res.text, {decodeEntities: false});
         var $ = utils.$.load(res.text);
         var results = []
-        var categories = $('font.bgtopfont');
-        utils._.each(categories, function (category) {
+        var categories = $('font.bgfont');
+        categories.each(function () {
           var result = {};
-          console.log(category);
-          //result.name = category.text();
-          //var subCategories = category.next('table').find('font.bgfont');
-          //console.log(subCategories.length);
-        })
-        cb(null, categories);
+          var category = $(this);
+          var carr = category.text().replace(/[\s|\r|\n]+/g, '').split('—');
+          result.tag = carr[0] || '';
+          result.name = carr[1] || '';
+          result.subs = [];
+          var subCategories = category.nextAll();
+          subCategories.each(function () {
+            var subCategory = $(this);
+            var subResult = {};
+            var subName = subCategory.text().replace(/[\s|\r|\n]+/g, '');
+            subResult.name = subName;
+            subResult.url = configs.site.host + '/' + subCategory.attr('href');
+            result.subs.push(subResult);
+          });
+          results.push(result);
+        });
+        cb(null, results);
       });
   }
 })
 
 
 var spider = new Spider();
-setInterval(function () {
-  spider.crawl(function (err, result) {
-  });
-}, 5000);
+
+spider.crawl(function (err, results) {
+  console.log(err, results);
+});
