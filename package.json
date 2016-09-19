@@ -1,0 +1,26 @@
+{
+  "name": "agriculture-spider",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jason1213/agriculture-spider.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jason1213/agriculture-spider/issues"
+  },
+  "homepage": "https://github.com/jason1213/agriculture-spider#readme",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "lodash": "^4.15.0",
+    "superagent": "^2.2.0",
+    "superagent-charset": "^1.1.1"
+  }
+}
