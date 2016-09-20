@@ -33,7 +33,7 @@ Spider.include = function (obj) {
 }
 
 Spider.extend({
-  crawl: function (cb) {
+  crawlCategory: function (cb) {
     console.log('start crawling : ', this.options.site.host);
     var options = {
       url: this.options.site.host,
@@ -51,7 +51,7 @@ Spider.extend({
       .charset('gbk')
       .end(function (err, res) {
         if (err) {
-          console.log('Error:', err);
+          console.log('Category Error : ', err);
           return cb(err);
         }
         var $ = utils.$.load(res.text);
@@ -60,9 +60,16 @@ Spider.extend({
         categories.each(function () {
           var result = {};
           var category = $(this);
-          var carr = category.text().replace(/[\s|\r|\n]+/g, '').split('—');
-          result.tag = carr[0] || '';
-          result.name = carr[1] || '';
+          var text = category.text().replace(/[\s|\r|\n]+/g, '');
+          var carr = null;
+          
+          if ('-'.indexOf(text) > -1) {
+            carr = category.text().replace(/[\s|\r|\n]+/g, '').split('-');
+          } else {
+            carr = category.text().replace(/[\s|\r|\n]+/g, '').split('—');
+          }   
+          result.c1 = carr[0] || '';
+          result.c2 = carr[1] || carr[0] || '';
           result.subs = [];
           var subCategories = category.nextAll();
           subCategories.each(function () {
@@ -77,12 +84,43 @@ Spider.extend({
         });
         cb(null, results);
       });
+  },
+  crawlDisease: function (categories, cb) {
+    if (!categories || categories.length === 0) {
+      return cb(null, []);
+    }
+    utils.async.map(categories, function (category, cb1) {
+      var result = {};
+      result.name = category.name;
+      result.diseases = [];
+      result.pests = [];
+      var url = category.url;
+      var request = utils.request;
+      utils.charset(request);
+      request
+        .get(this.options.site.host + '/Right.aspx')
+        .set('User-Agent', this.options.site.headers['User-Agent'])
+        .set('Cookie', this.options.site.headers.Cookie)
+        .set('Host', this.options.site.headers.Host)
+        .charset('gbk')
+        .end(function (err, res) {
+          if (err) {
+            console.log('Disease Error : ', err);
+            return cb1(err);
+          }
+          var $ = utils.$.load(res.text);
+          result.text = res.text;
+          return cb1(null, result);
+        });
+    }, function (err, results) {
+      cb(err, results);
+    })
   }
 })
 
 
 var spider = new Spider();
 
-spider.crawl(function (err, results) {
+spider.crawlCategory(function (err, results) {
   console.log(err, results);
 });
