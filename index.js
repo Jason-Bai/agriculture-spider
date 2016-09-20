@@ -34,7 +34,7 @@ Spider.include = function (obj) {
 
 Spider.extend({
   crawlCategory: function (cb) {
-    console.log('start crawling : ', this.options.site.host);
+    console.log('start crawl categories: ', this.options.site.host);
     var options = {
       url: this.options.site.host,
       method: 'GET',
@@ -78,6 +78,7 @@ Spider.extend({
             var subName = subCategory.text().replace(/[\s|\r|\n]+/g, '');
             subResult.name = subName;
             subResult.url = configs.site.host + '/' + subCategory.attr('href');
+            console.log(subResult);
             result.subs.push(subResult);
           });
           results.push(result);
@@ -89,19 +90,21 @@ Spider.extend({
     if (!categories || categories.length === 0) {
       return cb(null, []);
     }
+    var _this = this;
     utils.async.map(categories, function (category, cb1) {
       var result = {};
       result.name = category.name;
+      var url = result.url = category.url;
       result.diseases = [];
       result.pests = [];
-      var url = category.url;
       var request = utils.request;
       utils.charset(request);
+      console.log('start crawl diseases: ', url);
       request
-        .get(this.options.site.host + '/Right.aspx')
-        .set('User-Agent', this.options.site.headers['User-Agent'])
-        .set('Cookie', this.options.site.headers.Cookie)
-        .set('Host', this.options.site.headers.Host)
+        .get(url)
+        .set('User-Agent', _this.options.site.headers['User-Agent'])
+        .set('Cookie', _this.options.site.headers.Cookie)
+        .set('Host', _this.options.site.headers.Host)
         .charset('gbk')
         .end(function (err, res) {
           if (err) {
@@ -109,7 +112,31 @@ Spider.extend({
             return cb1(err);
           }
           var $ = utils.$.load(res.text);
-          result.text = res.text;
+          var diseases = $('font.bgfont');
+
+          var disease = diseases.eq(0);
+          var adiseases = disease.next().next().find('tr > td > a');
+
+          adiseases.each(function () {
+            var ad = $(this);
+            var adResult = {
+              name: ad.text().replace(/[\s|\r|\n]+/g, ''),
+              url: configs.site.host + '/' + ad.attr('href')
+            };
+            result.diseases.push(adResult);
+          });
+
+          var pest = diseases.eq(1);
+          var apest = pest.next().next().find('tr > td > a');
+
+          apest.each(function () {
+            var ap = $(this);
+            var apResult = {
+              name: ap.text().replace(/[\s|\r|\n]+/g, ''),
+              url: configs.site.host + '/' + ap.attr('href')
+            };
+            result.pests.push(apResult);
+          });
           return cb1(null, result);
         });
     }, function (err, results) {
@@ -118,9 +145,72 @@ Spider.extend({
   }
 })
 
+/*
+function AgriSpider() {
+  this.spider = new Spider();
+}
+
+AgriSpider.prototype.crawlCategory = function (cb) {
+  this.spider.crawlCategory(function (err, categories) {
+    return cb(err, categories);
+  });
+}
+
+AgriSpider.prototype.crawlDisease = function (categories, cb) {
+  this.spider.crawlDisease(categories, function (err, diseases) {
+    return cb(err, diseases);
+  })
+}
+
+AgriSpider.prototype.start = function () {
+  var _this = this;
+  utils.async.waterfall([
+    function (cb) {
+      var hook = {};
+      
+    },
+    function (hook, cb) {
+
+    }
+  ], function(err, results) {
+
+  })
+}
+*/
+
+
+
 
 var spider = new Spider();
-
-spider.crawlCategory(function (err, results) {
-  console.log(err, results);
+/*
+spider.crawlCategory(function (err, categories) {
+  console.log(err, categories);
 });
+*/
+
+var categories = [
+    {
+        name: '水稻',
+        url: 'http://bcch.ahnw.gov.cn/Show.aspx?id=30&type=crop'
+    },
+    {
+        name: '小麦',
+        url: 'http://bcch.ahnw.gov.cn/Show.aspx?id=31&type=crop'
+    },
+    {
+        name: '大麦',
+        url: 'http://bcch.ahnw.gov.cn/Show.aspx?id=32&type=crop'
+    },
+    {
+        name: '玉米',
+        url: 'http://bcch.ahnw.gov.cn/Show.aspx?id=33&type=crop'
+    },
+    {
+        name: '高梁',
+        url: 'http://bcch.ahnw.gov.cn/Show.aspx?id=34&type=crop'
+    }
+];
+
+spider.crawlDisease(categories, function (err, diseases) {
+  console.log(err, diseases);
+})
