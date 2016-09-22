@@ -159,11 +159,14 @@ Spider.extend({
         damageSym: '',
         pathogen: '',
         cycle: '',
-        factor: ''
+        factor: '',
+        morphology: '',
+        habits: '',
+        cmethod: ''
       };
       var request = utils.request;
       utils.charset(request);
-      console.log('start crawl diseases detail: ', url);
+      console.log('start crawl diseases detail: ', disease.url);
       request
         .get(disease.url)
         .set('User-Agent', _this.options.site.headers['User-Agent'])
@@ -187,7 +190,13 @@ Spider.extend({
             };
             result.imgs.push(img);
           });
-          console.log(res.text);
+          result.damageSym = $('#lblDamageSym').text();
+          result.pathogen = $('#lblPathogen').text();
+          result.cycle = $('#lblCycle').text();
+          result.factor = $('#lblOFactor').text();
+          result.morphology = $('#lblMorphology').text();
+          result.habits = $('#lblHabits').text();
+          result.cmethod = $('#lblCMethod').text();
           return cb1(null, result);
         });
     }, function (err, results) {
