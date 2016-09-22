@@ -1,4 +1,9 @@
 var configs = {
+  services: {
+    name: 'Agriculture-Spider-API',
+    host: 'http://spider.boybai.cn',
+    port: 5000
+  },
   db: {
     host: '',
     port: 27017,
@@ -13,7 +18,17 @@ var configs = {
       'Host': 'bcch.ahnw.gov.cn'
     },
     timeout: 3000
-  }
+  },
+  apis: [{
+    name: '农业分类',
+    url: 'http://spider.boybai.cn/categories' 
+  }, {
+    name: '农业子类',
+    url: 'http://spider.boybai.cn/diseases'
+  }, {
+    name: '病虫害',
+    url: 'http://spider.boybai.cn/diseases/detail'
+  }]
 };
 
 module.exports = configs;

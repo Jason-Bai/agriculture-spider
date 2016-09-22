@@ -20,7 +20,10 @@
   "dependencies": {
     "async": "^2.0.1",
     "cheerio": "^0.22.0",
+    "errorhandler": "^1.4.3",
+    "express": "^4.14.0",
     "lodash": "^4.15.0",
+    "morgan": "^1.7.0",
     "superagent": "^2.2.0",
     "superagent-charset": "^1.1.1"
   }
