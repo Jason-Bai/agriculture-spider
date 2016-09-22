@@ -142,6 +142,57 @@ Spider.extend({
     }, function (err, results) {
       cb(err, results);
     })
+  },
+  crawlDiseaseDetail: function (diseases, cb) {
+    if (!diseases || diseases.length === 0) {
+      return cb(null, []);
+    }
+    var _this = this;
+    utils.async.map(diseases, function (disease, cb1) {
+      var result = {
+        name: disease.name,
+        url: disease.url,
+        name_en: '',
+        synonyms: '',
+        intro: '',
+        imgs: [],
+        damageSym: '',
+        pathogen: '',
+        cycle: '',
+        factor: ''
+      };
+      var request = utils.request;
+      utils.charset(request);
+      console.log('start crawl diseases detail: ', url);
+      request
+        .get(disease.url)
+        .set('User-Agent', _this.options.site.headers['User-Agent'])
+        .set('Cookie', _this.options.site.headers.Cookie)
+        .set('Host', _this.options.site.headers.Host)
+        .charset('gbk')
+        .end(function (err, res) {
+          if (err) {
+            console.log('Disease Detail Error : ', err);
+            return cb1(err);
+          }
+          var $ = utils.$.load(res.text);
+          result.name_en = $('#lblNameEng').text();
+          result.synonyms = $('#lblSynonyms').text();
+          result.intro = $('#lblIntroduction').text();
+          $('a img').each(function (){
+            var $this = $(this);
+            var img = {
+              url: configs.site.host + '/' + $this.attr('src'),
+              desc: $this.attr('alt')
+            };
+            result.imgs.push(img);
+          });
+          console.log(res.text);
+          return cb1(null, result);
+        });
+    }, function (err, results) {
+      cb(err, results);
+    })
   }
 })
 
@@ -186,7 +237,7 @@ var spider = new Spider();
 spider.crawlCategory(function (err, categories) {
   console.log(err, categories);
 });
-*/
+
 
 var categories = [
     {
@@ -210,7 +261,24 @@ var categories = [
         url: 'http://bcch.ahnw.gov.cn/Show.aspx?id=34&type=crop'
     }
 ];
+var categories = [
+    {
+        name: '水稻',
+        url: 'http://bcch.ahnw.gov.cn/Show.aspx?id=30&type=crop'
+    }
+];
 
 spider.crawlDisease(categories, function (err, diseases) {
   console.log(err, diseases);
 })
+
+*/
+
+var diseases = [{
+  name: '稻瘟病',
+  url: 'http://bcch.ahnw.gov.cn/CropContent.aspx?id=3393' 
+}];
+
+spider.crawlDiseaseDetail(diseases, function (err, results) {
+  console.log(err, results);
+});
