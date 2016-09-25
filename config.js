@@ -8,6 +8,7 @@ var configs = {
     host: '',
     port: 27017,
     user: '',
+    name: '',
     pass: ''
   },
   site: {
@@ -28,7 +29,13 @@ var configs = {
   }, {
     name: '病虫害',
     url: 'http://spider.boybai.cn/diseases/detail'
-  }]
+  }],
+  init: {
+    categories: {
+      on: true,
+      show: ['果树', '蔬菜', '农作物']
+    }
+  }
 };
 
 module.exports = configs;
