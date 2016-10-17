@@ -3,10 +3,13 @@ var Schema = mongoose.Schema;
 
 var CategorySchema = new Schema({
   name: String,
-  belong: String,
-  hidden: Boolean,
-  level: Number,
-  subs: [Schema.Types.Mixed]
+	level: Number,
+	isDelete: Number,
+	parentId: Schema.Types.ObjectId,
+	createdAt: Date,
+	updatedAt: Date
+}, {
+	versionKey: false
 });
 
 var Category = mongoose.model('Category', CategorySchema);
